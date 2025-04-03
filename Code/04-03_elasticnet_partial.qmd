@@ -413,7 +413,8 @@ Why 212 observations?
 
 Metrics on the **test set**:
 ```{r}
-
+final_fit%>%
+  collect_metrics()
 ```
 
 Metrics on **train set** (for curiosity and compare to test set):  
@@ -448,11 +449,11 @@ Why?
 Predicted vs. observed plot:  
 ```{r}
 final_fit %>%
-  ...
-  ggplot(aes(x = ...,
-             y = ...)) +
+collect_predictions() %>%
+  ggplot(aes(x = strength_gtex,
+             y = .pred)) +
   geom_point() +
-  geom_...() +
+  geom_abline() +
   geom_smooth(method = "lm") +
   scale_x_continuous(limits = c(20, 40)) +
   scale_y_continuous(limits = c(20, 40)) 
@@ -462,7 +463,9 @@ Coefficients:
 ```{r}
 final_spec %>%
   fit(strength_gtex ~ .,
-         data = bake(weather_prep, weather)) 
+         data = bake(weather_prep, weather)) %>%
+  tidy() %>%
+  arrange(desc(estimate))
 
 ```
 
@@ -471,7 +474,7 @@ Variable importance:
 final_spec %>%
   fit(strength_gtex ~ .,
          data = bake(weather_prep, weather)) %>%
-    ... %>%
+    vi() %>%
   mutate(
     Importance = abs(Importance),
     Variable = fct_reorder(Variable, 
